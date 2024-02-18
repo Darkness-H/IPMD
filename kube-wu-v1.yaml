@@ -1,0 +1,31 @@
+# Version de la API de Kubernetes
+apiVersion: apps/v1
+# Tipo de recurso
+kind: Deployment
+# Metadatos relacionados
+metadata:
+  # Nombre del deployment
+  name: swu-deployment
+  # Etiquetas asignadas al deployment
+  labels:
+    app: image-wu
+# Especificaciones
+spec:
+  # Establecer el numero de pods (n replicas)
+  replicas: 5
+  # Definir que pods debe gestionar
+  selector:
+    matchLabels:
+      app: image-wu
+  # Plantilla de los pods a crear
+  template:
+    metadata:
+      labels:
+        app: image-wu
+    spec:
+      containers:
+      - name: image-wu
+        image: image_wu
+        # Puertos que se deben exponer en los contenedores
+        ports:
+          - containerPort: 696

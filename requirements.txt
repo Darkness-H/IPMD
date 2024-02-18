@@ -1,0 +1,4 @@
+waitress
+Flask
+redis
+requests

@@ -1,0 +1,62 @@
+services:
+
+  # Definir un servidor web a partir de un Dockerfile
+  web:
+    # El Dockerfile utilizado esta en el repositorio actual
+    build: .
+    # Mapear el puerto 80 del localhost al puerto 696 del contenedor
+    ports:
+      - "80:696"
+    # Definir la variable de entorno
+    #environment:
+    #  - AEMET_API_KEY=${AEMET_API_KEY}
+    # Este servidor depende de otro servidor llamado redis
+    depends_on:
+      - redis
+
+  # Servidor de redis
+  redis:
+    image: redis
+
+  # Balanceador de cargas nginx
+  nginx:
+    # Imagen a utilizar para el balanceador
+    image: nginx:latest
+    # Mapea el puerto 8080 del localhost al puerto 80 del contenedor nginx
+    ports:
+      - "8080:80"
+    # Montar un volumen en la maquina local para el contenedor nginx
+    #volumes:
+    #  - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    # El contenedor depende de los siguientes servicios
+    depends_on:
+      - test
+      - trafico
+      - tiempo
+
+  # Servicio test
+  test:
+    image: image_wu
+    depends_on:
+      - redis
+
+  # Servicio trafico 
+  trafico:
+    image: image_wu
+    # Tres replicas para el servidor de trafico (escalado a 3)
+    deploy:
+      replicas: 3  # Escalamos a 3 instancias de /trafico
+    depends_on:
+      - redis
+
+  # Servicio tiempo
+  tiempo:
+    image: image_wu
+    # Variable de entorno para acceder a la API AEMET
+    #environment:
+    #  - AEMET_API_KEY=${AEMET_API_KEY}
+    # Dos réplicas para el servidor tiempo (escalado a 2)
+    deploy:
+      replicas: 2  # Escalamos a 2 instancias de /tiempo
+    depends_on:
+      - redis
